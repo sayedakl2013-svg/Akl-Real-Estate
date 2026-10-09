@@ -1,0 +1,12 @@
+node_modules
+.next
+.env
+.env.local
+.env.*.local
+/storage/*
+!/storage/README.md
+/content-private
+/backups
+tsconfig.tsbuildinfo
+next-env.d.ts
+*.log
