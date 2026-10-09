@@ -116,6 +116,16 @@ export const actions: Record<string, Action> = {
       await audit(a.id, 'question.status', 'question', int(b.id), { status });
     },
   },
+  'question.bulk_publish': {
+    role: 'admin',
+    run: async (a, b) => {
+      const from = b.from === 'in_review' ? 'in_review' : 'draft';
+      const rows = await q(`UPDATE questions SET status = 'published', reviewed_by = $3, published_at = now(), updated_at = now()
+                             WHERE course_id = $1 AND status = $2 RETURNING id`, [int(b.course_id), from, a.id]);
+      await audit(a.id, 'question.bulk_publish', 'course', int(b.course_id), { from, count: rows.length });
+      return { count: rows.length };
+    },
+  },
   'user.verify': {
     role: 'admin',
     run: async (a, b) => {

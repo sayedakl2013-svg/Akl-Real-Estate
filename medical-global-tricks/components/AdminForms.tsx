@@ -57,7 +57,7 @@ export function ActionButton({ action, payload, label, className = 'btn btn-ghos
   );
 }
 
-export function UploadForm({ children, kind }: { children: React.ReactNode; kind: 'pdf' | 'video' | 'binder' }) {
+export function UploadForm({ children, kind }: { children: React.ReactNode; kind: 'pdf' | 'pdf_bulk' | 'video' | 'binder' }) {
   const router = useRouter();
   const { t } = useI18n();
   const { msg, setMsg } = useStatus();

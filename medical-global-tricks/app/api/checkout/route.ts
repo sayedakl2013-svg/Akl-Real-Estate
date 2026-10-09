@@ -1,4 +1,4 @@
-import { handler, json, readJson, int, HttpError } from '@/lib/http';
+import { handler, json, readJson, int, baseUrl, HttpError } from '@/lib/http';
 import { requireUser } from '@/lib/auth';
 import { courseAccess } from '@/lib/access';
 import { one, q } from '@/lib/db';
@@ -28,7 +28,7 @@ export const POST = handler(async (req) => {
     customer = (await s.customers.create({ email: user.email, name: user.name, metadata: { user_id: user.id } })).id;
     await q('UPDATE users SET stripe_customer_id = $2 WHERE id = $1', [user.id, customer]);
   }
-  const base = (process.env.APP_BASE_URL ?? '').replace(/\/$/, '');
+  const base = baseUrl();
   const metadata = { order_id: order!.id, user_id: user.id, course_id: String(offer.course_id), offer_id: String(offer.id) };
   const priceData = {
     currency: offer.currency,

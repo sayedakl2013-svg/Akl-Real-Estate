@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { handler, json, int, str, HttpError } from '@/lib/http';
 import { requireStaff } from '@/lib/auth';
-import { one, tx } from '@/lib/db';
+import { one, q, tx } from '@/lib/db';
 import { saveFile } from '@/lib/storage';
 import { cleanHtml } from '@/lib/sanitize';
 import { parseBinder } from '@/lib/binder';
@@ -14,6 +14,35 @@ export const POST = handler(async (req) => {
   const actor = await requireStaff('admin');
   const form = await req.formData();
   const kind = str(form.get('kind'), 20);
+
+  if (kind === 'pdf_bulk') {
+    // Several summary PDFs at once; the domain is read from the file name prefix ("H-Hyaluronidase.pdf" → H).
+    const courseId = int(form.get('course_id'));
+    const publish = form.get('publish') === 'on';
+    const course = await one('SELECT slug FROM courses WHERE id = $1', [courseId]);
+    if (!course) throw new HttpError(404, 'not_found');
+    const doms = await q('SELECT id, code, name_en FROM domains WHERE course_id = $1', [courseId]);
+    const files = form.getAll('file').filter((f): f is File => f instanceof File && f.size > 0);
+    if (!files.length) throw new HttpError(400, 'file_required');
+    const done: string[] = [], skipped: string[] = [];
+    for (const f of files) {
+      const b = Buffer.from(await f.arrayBuffer());
+      const code = f.name.split(/[-_ .]/)[0].toUpperCase();
+      const d = doms.find((x) => x.code === code);
+      if (!d || f.size > MAX_PDF || b.subarray(0, 5).toString() !== '%PDF-') { skipped.push(f.name); continue; }
+      const key = `summaries/${course.slug}/${d.code}.pdf`;
+      await saveFile(key, b);
+      await q(`INSERT INTO course_files(course_id, domain_id, kind, title, storage_key, size_bytes, status)
+               VALUES ($1,$2,'summary_pdf',$3,$4,$5,$6)
+               ON CONFLICT (storage_key) DO UPDATE SET size_bytes = EXCLUDED.size_bytes, updated_at = now(),
+                 status = CASE WHEN $7 THEN 'published' ELSE course_files.status END`,
+        [courseId, d.id, `${d.name_en} — Summary`, key, f.size, publish ? 'published' : 'draft', publish]);
+      done.push(d.code);
+    }
+    await audit(actor.id, 'file.bulk_upload', 'course', courseId, { done, skipped });
+    return json({ ok: true, total: files.length, inserted: done.length, updated: 0, skipped: skipped.length, skippedNames: skipped });
+  }
+
   const file = form.get('file');
   if (!(file instanceof File) || file.size === 0) throw new HttpError(400, 'file_required');
   const buf = Buffer.from(await file.arrayBuffer());

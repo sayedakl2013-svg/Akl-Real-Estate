@@ -25,7 +25,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  output: 'standalone',
+  // Docker/VPS builds set NEXT_STANDALONE=1; managed hosts (Render) use `next start`.
+  output: process.env.NEXT_STANDALONE === '1' ? 'standalone' : undefined,
   poweredByHeader: false,
   // Admin uploads (PDF / lesson video) pass through the proxy; larger videos should go straight to object storage.
   experimental: { proxyClientMaxBodySize: '250mb' },

@@ -1,0 +1,67 @@
+# Render Blueprint for Medical Global Tricks (app lives in medical-global-tricks/).
+# Render dashboard → New → Blueprint → pick this repository and branch → Apply.
+# Creates: a PostgreSQL database, a web service with a persistent disk for PDFs/videos,
+# a private-preview password and a one-time admin setup token (both generated; view them under Environment).
+databases:
+  - name: mgt-db
+    databaseName: mgt
+    user: mgt
+    region: frankfurt
+    postgresMajorVersion: "16"
+    plan: basic-256mb        # pick a larger plan for production load
+
+services:
+  - type: web
+    name: medical-global-tricks
+    runtime: node
+    rootDir: medical-global-tricks
+    region: frankfurt
+    plan: starter            # a persistent disk needs a paid instance
+    buildCommand: npm ci && npm run build
+    startCommand: npm run db:migrate && npm run db:seed && npx next start -H 0.0.0.0 -p $PORT
+    healthCheckPath: /api/health
+    disk:
+      name: storage
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mgt-db
+          property: connectionString
+      - key: STORAGE_DIR
+        value: /var/data
+      # Private preview: the whole site asks for user "preview" + this password. Delete it at public launch.
+      - key: SITE_ACCESS_USER
+        value: preview
+      - key: SITE_ACCESS_PASSWORD
+        generateValue: true
+      - key: SITE_NOINDEX
+        value: "true"
+      # Paste this on /setup (after registering) to make your account the first admin. Works once.
+      - key: ADMIN_BOOTSTRAP_TOKEN
+        generateValue: true
+      # Optional: custom domain. Without it the onrender.com URL (RENDER_EXTERNAL_URL) is used.
+      - key: APP_BASE_URL
+        sync: false
+      # Fill in when ready (see medical-global-tricks/docs/PAYMENTS.md and OPERATIONS.md).
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false

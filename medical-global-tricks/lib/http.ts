@@ -9,6 +9,9 @@ export class HttpError extends Error {
 
 export const json = (data: unknown, status = 200) => NextResponse.json(data, { status });
 
+/** Public origin of the site. Render sets RENDER_EXTERNAL_URL automatically; APP_BASE_URL overrides it (custom domain). */
+export const baseUrl = () => (process.env.APP_BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 export function clientIp(req: NextRequest | Request): string {
   const h = req.headers;
   return (h.get('x-forwarded-for')?.split(',')[0] ?? h.get('x-real-ip') ?? 'local').trim();
@@ -22,7 +25,7 @@ export function assertSameOrigin(req: Request) {
   let ok = false;
   try {
     const o = new URL(origin);
-    ok = o.host === host || (!!process.env.APP_BASE_URL && o.origin === new URL(process.env.APP_BASE_URL).origin);
+    ok = o.host === host || o.origin === new URL(baseUrl()).origin;
   } catch {}
   if (!ok) throw new HttpError(403, 'bad_origin');
 }

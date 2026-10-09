@@ -2,10 +2,12 @@
 
 ## Deploying
 
+On Render, follow [`DEPLOY.md`](DEPLOY.md) instead (Blueprint, no shell needed). For a VPS or Docker host:
+
 Requirements: Node 20+, PostgreSQL 14+, a persistent volume (or object storage) for `STORAGE_DIR`, and HTTPS in front.
 
 ```bash
-npm ci && npm run build
+npm ci && NEXT_STANDALONE=1 npm run build
 npm run db:migrate && npm run db:seed
 # standalone output: copy static assets next to the server, then run it
 cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/

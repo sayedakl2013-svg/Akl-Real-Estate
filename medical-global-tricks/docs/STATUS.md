@@ -18,7 +18,7 @@
 ### يحتاج بيانات أو إعدادات خارجية
 | البند | المطلوب منكم |
 |---|---|
-| النشر على رابط | خادم أو منصة استضافة + قاعدة PostgreSQL + نطاق. لم أستطع تحديث رابط chatgpt.site الحالي من هذه البيئة (الوصول إليه محجوب) |
+| النشر على رابط | جاهز للنشر بنقرات على Render عبر `render.yaml` (راجع `DEPLOY.md`)، ويحتاج فقط حسابكم على Render. لم أستطع تحديث رابط chatgpt.site الحالي من هذه البيئة |
 | المحتوى والحسابات في النسخة التجريبية الحالية | تصدير الطلاب ونتائجهم من النسخة الحالية (إن وُجد) لاستيرادها. لم يكن الوصول لبياناتها ممكنًا من هنا |
 | الدخول بحساب ChatGPT | يعمل فقط داخل منصة chatgpt.site الحالية، ولا يمكن نقله لهذا التطبيق المستقل. أبقوا النسخة التجريبية كما هي حتى تشغيل الحسابات المستقلة |
 | البريد الإلكتروني | مزوّد SMTP وإعداد SPF/DKIM. حتى ذلك الحين لا تُرسل الرسائل، والتأكيد يتم يدويًا من الإدارة |
@@ -40,7 +40,7 @@ Everything listed in the README table is implemented and exercised by `tests/e2e
 - webhook-only payment activation, refunds and subscriptions
 
 ### Needs external data or setup
-- **Hosting and a URL.** I couldn't update the existing chatgpt.site trial from this environment.
+- **Hosting and a URL.** It's ready for a Render Blueprint deploy (`render.yaml`, `docs/DEPLOY.md`) and only needs your Render account. I couldn't update the existing chatgpt.site trial from this environment.
 - **Existing trial data.** Exports of any existing trial students and results, if they're to be migrated.
 - **ChatGPT sign-in** stays on the existing trial only.
 - **Email delivery:** SMTP credentials and DNS records.

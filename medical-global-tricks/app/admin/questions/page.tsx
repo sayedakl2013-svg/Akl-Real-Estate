@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { adminCtx } from '@/lib/adminPage';
 import { one, q } from '@/lib/db';
-import { UploadForm } from '@/components/AdminForms';
+import { ActionButton, UploadForm } from '@/components/AdminForms';
 
 const PAGE = 50;
 
@@ -28,6 +28,11 @@ export default async function AdminQuestions({ searchParams }: { searchParams: P
       <div className="spread"><h2 style={{ margin: 0 }}>{L('Questions & review', 'الأسئلة والمراجعة')}</h2>
         <Link className="btn btn-primary btn-sm" href={`/admin/questions/new?course=${courseId}`}>{L('New question (draft)', 'سؤال جديد (مسودة)')}</Link></div>
       <p className="muted">{L('Workflow: draft → in review → published (admins publish). Editors’ changes to published questions go back to review. Every edit keeps a revision.', 'سير العمل: مسودة ← قيد المراجعة ← منشور (النشر للمشرفين). تعديلات المحررين على الأسئلة المنشورة تعود للمراجعة. كل تعديل يحفظ نسخة سابقة.')}</p>
+      {user.role === 'admin' && byStatus.filter((s) => s.status === 'draft' || s.status === 'in_review').map((s) => (
+        <ActionButton key={s.status} action="question.bulk_publish" payload={{ course_id: courseId, from: s.status }} className="btn btn-primary btn-sm"
+          label={L(`Publish all ${s.n} “${s.status}” questions`, `نشر كل الأسئلة (${s.n}) بحالة «${s.status}»`)}
+          confirm={L('Publish them all now? Students with access will see them immediately.', 'نشرها كلها الآن؟ سيراها الطلاب المشتركون فورًا.')} />
+      ))}
       <div className="row">{byStatus.map((s) => <Link key={s.status} className="badge badge-draft" href={qs({ status: s.status, page: 0 })}>{s.status}: {s.n}</Link>)}<Link className="badge badge-teal" href={`?course=${courseId}`}>{L('all', 'الكل')}</Link></div>
       <form className="card form-grid" method="get" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', alignItems: 'end' }}>
         <div className="field"><label>{L('Course', 'الكورس')}</label><select name="course" className="input" defaultValue={courseId}>{courses.map((c) => <option key={c.id} value={c.id}>{c.title_en}</option>)}</select></div>

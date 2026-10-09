@@ -22,7 +22,15 @@ export default async function Media() {
             <td><a href={`/api/files/${f.id}`} target="_blank" rel="noopener">{L('Open', 'فتح')}</a></td>
             <td><ActionButton action="file.status" payload={{ id: f.id, status: next(f.status) }} label={f.status === 'published' ? L('Unpublish', 'إلغاء النشر') : L('Publish', 'نشر')} /></td></tr>
         ))}</tbody></table></div>
-        <details><summary style={{ cursor: 'pointer', fontWeight: 700 }}>{L('Upload PDF', 'رفع ملف PDF')}</summary>
+        <details><summary style={{ cursor: 'pointer', fontWeight: 700 }}>{L('Upload summary PDFs in bulk', 'رفع ملفات الملخصات دفعة واحدة')}</summary>
+          <UploadForm kind="pdf_bulk">
+            <div className="field"><label>{L('Course', 'الكورس')}</label><select name="course_id" className="input">{courses.map((c) => <option key={c.id} value={c.id}>{c.title_en}</option>)}</select></div>
+            <div className="field"><label>{L('PDF files — names start with the domain code, e.g. H-Hyaluronidase.pdf', 'ملفات PDF — يبدأ اسم الملف برمز المجال، مثل H-Hyaluronidase.pdf')}</label><input name="file" type="file" accept="application/pdf" multiple required /></div>
+            <label className="check"><input type="checkbox" name="publish" defaultChecked /> {L('Publish immediately', 'نشر مباشرة')}</label>
+            <div><button className="btn btn-dark">{L('Upload', 'رفع')}</button></div>
+          </UploadForm>
+        </details>
+        <details><summary style={{ cursor: 'pointer', fontWeight: 700 }}>{L('Upload a single PDF', 'رفع ملف PDF واحد')}</summary>
           <UploadForm kind="pdf">
             <div className="form-grid two">
               <div className="field"><label>{L('Course', 'الكورس')}</label><select name="course_id" className="input">{courses.map((c) => <option key={c.id} value={c.id}>{c.title_en}</option>)}</select></div>

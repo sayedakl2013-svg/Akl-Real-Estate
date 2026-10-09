@@ -35,7 +35,7 @@ node scripts/add-video.mjs teaser.mp4 --title-en="…" --title-ar="…" --promo 
 npm run build && npm start
 ```
 
-Create your account on `/register`, then `npm run make-admin -- you@example.com`.
+Create your account on `/register`, then `npm run make-admin -- you@example.com`. On a hosted deployment without a shell, use `/setup` with `ADMIN_BOOTSTRAP_TOKEN` instead.
 
 **Course content isn't committed.** This repository is public, so the question bank, PDFs and videos live only in the database and `STORAGE_DIR`. They're loaded through the import scripts above or through *Admin → Questions → Import*.
 
@@ -51,10 +51,12 @@ Create your account on `/register`, then `npm run make-admin -- you@example.com`
 | `node scripts/maintenance.mjs` | Cron job: mark expired access and attempts, purge old sessions and tokens |
 | `npm run backup` / `scripts/restore.sh` | Database + storage backup with verification; restore into an empty database |
 | `npm run test:e2e` | Playwright end-to-end checks against a running server (33 checks) |
+| `tests/deploy-bootstrap.mjs` | Rehearses a fresh deployment: empty database, preview password, `/setup`, content uploaded through admin (7 checks) |
 | `tests/load/exam-burst.js` | k6 load test for mass exam start, autosave and submit |
 
 ## Docs
 
+- [`docs/DEPLOY.md`](docs/DEPLOY.md): **publish on a link** with Render in a few clicks (Arabic + English)
 - [`docs/STATUS.md`](docs/STATUS.md): delivery status (Arabic + English)
 - [`docs/PAYMENTS.md`](docs/PAYMENTS.md): Stripe setup for a SHAMS free-zone company, webhook events, PayTabs / Tap options
 - [`docs/SCALING.md`](docs/SCALING.md): architecture for 25,000 concurrent examinees, and how to *prove* it

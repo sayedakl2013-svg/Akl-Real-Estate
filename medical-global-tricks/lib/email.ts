@@ -2,6 +2,7 @@ import 'server-only';
 import nodemailer from 'nodemailer';
 import { q } from './db';
 import { randomToken, sha256 } from './crypto';
+import { baseUrl } from './http';
 
 export const emailConfigured = () => !!(process.env.SMTP_HOST && process.env.EMAIL_FROM);
 
@@ -41,7 +42,7 @@ export async function issueEmailToken(userId: string, kind: 'verify' | 'reset') 
   return token;
 }
 
-const base = () => (process.env.APP_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+const base = baseUrl;
 
 export async function sendVerificationEmail(userId: string, email: string, name: string) {
   const token = await issueEmailToken(userId, 'verify');

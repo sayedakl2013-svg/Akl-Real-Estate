@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Trial privacy gate: when SITE_ACCESS_PASSWORD is set, the whole site sits behind a shared
-// password (HTTP Basic auth) and is marked noindex. Payment webhooks stay reachable for the gateway.
+// password (HTTP Basic auth) and is marked noindex. Payment webhooks and the health check stay reachable.
 function safeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
   let diff = 0;
@@ -11,7 +11,8 @@ function safeEqual(a: string, b: string) {
 
 export function proxy(req: NextRequest) {
   const password = process.env.SITE_ACCESS_PASSWORD;
-  if (password && !req.nextUrl.pathname.startsWith('/api/webhooks/')) {
+  const open = req.nextUrl.pathname.startsWith('/api/webhooks/') || req.nextUrl.pathname === '/api/health';
+  if (password && !open) {
     const user = process.env.SITE_ACCESS_USER || 'preview';
     const header = req.headers.get('authorization') ?? '';
     let ok = false;
